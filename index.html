@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="pIhvPIoQir8eDbjthE9dsQ">
+<head data-page-node-id="XSlhxTLp1kxgTEl1FSDrz8">
+<meta charset="UTF-8" data-page-node-id="PsgZd1BDGwJh86DSnDtrvt">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="u7JdQo68L1TwhShXkGgQPg">
+<title>实况足球联赛 · 积分榜 & 赛程</title>
+<style>
+:root{
+  --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --line:#334155;
+  --text:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --green:#22c55e;
+  --gold:#fbbf24; --silver:#cbd5e1; --bronze:#f59e0b; --red:#ef4444;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;
+  background:var(--bg); color:var(--text); line-height:1.5; padding-bottom:60px;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+header{
+  padding:24px 0 8px; border-bottom:1px solid var(--line); margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+header h1{font-size:22px;display:flex;align-items:center;gap:10px}
+header h1 .ball{font-size:26px}
+.badge{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:4px 10px;border-radius:20px}
+.sync-badge{font-size:12px;color:#0f172a;background:var(--green);padding:4px 10px;border-radius:20px;font-weight:600}
+nav{display:flex;gap:8px;margin:20px 0;flex-wrap:wrap}
+nav button{
+  background:var(--panel);border:1px solid var(--line);color:var(--text);
+  padding:9px 18px;border-radius:10px;cursor:pointer;font-size:14px;transition:.15s;
+}
+nav button:hover{border-color:var(--accent)}
+nav button.active{background:var(--accent);color:#0f172a;border-color:var(--accent);font-weight:600}
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:18px;margin-bottom:18px;
+}
+.card h2{font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 8px;text-align:center;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500;font-size:12px}
+tr:last-child td{border-bottom:none}
+.rank1{color:var(--gold);font-weight:700}
+.rank2{color:var(--silver);font-weight:700}
+.rank3{color:var(--bronze);font-weight:700}
+.hl{color:var(--accent);font-weight:700}
+.muted{color:var(--muted)}
+form{display:grid;gap:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+input,select{
+  width:100%;padding:10px 12px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--text);border-radius:8px;font-size:14px;
+}
+input:focus,select:focus{outline:none;border-color:var(--accent)}
+.btn{
+  padding:11px 20px;border:none;border-radius:10px;cursor:pointer;font-size:14px;
+  font-weight:600;transition:.15s;color:#0f172a;
+}
+.btn-primary{background:var(--accent)}
+.btn-primary:hover{opacity:.88}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.match-card{display:flex;flex-direction:column;gap:8px}
+.match{background:var(--panel2);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.match-head{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
+.match-body{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.team{flex:1;text-align:center;font-size:16px;font-weight:600}
+.score{font-size:26px;font-weight:800;min-width:80px;text-align:center;color:var(--accent)}
+.score.win{color:var(--green)}
+.vs{color:var(--muted);font-size:12px}
+.goals{font-size:12px;color:var(--muted);margin-top:4px}
+.goals b{color:var(--text)}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.scorer-list{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.scorer-chip{background:var(--panel2);border:1px solid var(--line);border-radius:20px;padding:4px 12px;font-size:13px}
+.del-goal{background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;padding:0 2px}
+.del-goal:hover{opacity:.7}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+.stat .num{font-size:28px;font-weight:800;color:var(--accent)}
+.stat .lab{font-size:12px;color:var(--muted);margin-top:4px}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+.loading{text-align:center;color:var(--muted);padding:30px}
+@media(max-width:560px){.score{font-size:22px;min-width:60px}.team{font-size:14px}}
+</style>
+</head>
+<body data-page-node-id="cFphGJ8EtnTKcixN7chOoI">
+<div class="wrap" data-page-node-id="phhH515katyu0NdCDDAKmo">
+  <header data-page-node-id="eWnx9SjOaRg1wovn07Mg4w">
+    <h1 data-page-node-id="9OkNi9FAB50EiA6bkTeFTv"><span class="ball" data-page-node-id="Ihm1aQye9m6Yx2ZC3Ry36I">⚽</span> 实况足球联赛</h1>
+    <span class="sync-badge" id="syncBadge" data-page-node-id="u7F4qS3c7i6G7WrmaP2say">数据已同步</span>
+  </header>
+
+  <nav data-page-node-id="U5Ur8VpQPzuGcyYN94FxBO">
+    <button class="active" data-tab="standings" data-page-node-id="y4GzAGI3d4TBOWu8pP7xA9">积分榜</button>
+    <button data-tab="scorers" data-page-node-id="ZiEF04oyMNBDlrEF6LlGiy">射手榜</button>
+    <button data-tab="schedule" data-page-node-id="quVzsthbRfWpxAVlxNznIp">赛程 & 比赛</button>
+    <button data-tab="add" data-page-node-id="d2vGmZ5aLrqKHWtPGjKUNR">添加比赛</button>
+    <button data-tab="players" data-page-node-id="EwP0MbeEt181fcsNzZ5SmE">选手管理</button>
+  </nav>
+
+  <!-- 概览 -->
+  <div class="stat-grid" id="statGrid" data-page-node-id="9aMUJ1qgHXEwFE4AqycEvo"></div>
+
+  <!-- 积分榜 -->
+  <section id="tab-standings" data-page-node-id="HCODNQskFELTH5rXY5OhxR">
+    <div class="card" data-page-node-id="oMfchy28KrskF7Eddpvlqk">
+      <h2 data-page-node-id="BZkSUyd6XD19zcgaWjWS5Z">🏆 积分榜</h2>
+      <div style="overflow-x:auto" data-page-node-id="bhMgJSjpoO3AuiUpdrZI2l">
+        <table data-page-node-id="ps0LJ11Ni6WJFGIf41QJHZ">
+          <thead data-page-node-id="iZ8wr4IFArmjS4B2fVhvkV">
+            <tr data-page-node-id="syo3tw1Nb7X8PpUgjNGgOM">
+              <th data-page-node-id="YGI23AyQBQChd9HXroN5OF">排名</th><th data-page-node-id="jbs5D7GEEMCH5SctweptkG">选手</th><th data-page-node-id="wIROrP99Rs3iCk34VPneEa">场次</th><th data-page-node-id="9w9XoJyVnVBEJs0b7CA8Ph">胜</th><th data-page-node-id="28CYDcwlePz20vTGKZNz2m">平</th><th data-page-node-id="0lHQJxdfBHjA5xGvQHb5gD">负</th>
+              <th data-page-node-id="OsMaFFJAzBO4aFhAPDTEoG">进</th><th data-page-node-id="bQXR0De9h1QdmgM9cu9t8Z">失</th><th data-page-node-id="aQ4DQtbq9T0bi4mj2HUysG">净胜</th><th data-page-node-id="swuylaON5zsXMCiN5KPL2J">积分</th>
+            </tr>
+          </thead>
+          <tbody id="standingsBody" data-page-node-id="h5jFdlomttCSZOATa7ZMl3"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 射手榜 -->
+  <section id="tab-scorers" style="display:none" data-page-node-id="e8rtS2TGGA9vDCNcnxUOEy">
+    <div class="card" data-page-node-id="bad9jgy2n66oafYVm8RnBc">
+      <h2 data-page-node-id="2QWENldsnuXSjwE23u54aN">🎯 射手榜</h2>
+      <div style="overflow-x:auto" data-page-node-id="3K7MVYuxQJjPKGLYa1TDzh">
+        <table data-page-node-id="gbZAWTvZ6n6Nz59yGGh8YB">
+          <thead data-page-node-id="EU1IXFoYwLV5nFCG9mC8YC">
+            <tr data-page-node-id="GTqnrTeoMa8BEuqcv19x9m"><th data-page-node-id="rHdov0EVGHwBQvZFB8W8rb">排名</th><th data-page-node-id="MtDh1WI0MukHLBeNv1fRO1">球员</th><th data-page-node-id="IDMu8htAPJDhYkDxpbnJAa">进球</th></tr>
+          </thead>
+          <tbody id="scorersBody" data-page-node-id="2htsWENqBL8VwUM6bvdGL8"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 赛程 -->
+  <section id="tab-schedule" style="display:none" data-page-node-id="nL0s6bk7y1gy0HnrSpkAEw">
+    <div class="card" data-page-node-id="s4VkFJ6cJoMq55zI1fpGhu">
+      <h2 data-page-node-id="8HgdGDmoA25Xodl6LijDEn">📅 全部比赛</h2>
+      <div class="match-card" id="matchesList" data-page-node-id="urHxOBCUuYALcD2mC2qgAG"></div>
+    </div>
+  </section>
+
+  <!-- 添加比赛 -->
+  <section id="tab-add" style="display:none" data-page-node-id="iKH4ZUR8ojEKlNJ8zgOaeV">
+    <div class="card" data-page-node-id="t3Jv5arbDq2Lc1rTbbjIwy">
+      <h2 data-page-node-id="gNkVEcu2W6gUOudEcybQjQ">➕ 手动添加比赛</h2>
+      <form id="addMatchForm" data-page-node-id="mAhYfYooQWxeu11wViRDhd">
+        <div class="row" data-page-node-id="MSH0ifjL6DZqzblVMOUfW4">
+          <div data-page-node-id="VlF5fV3a7Z5muCHWCI7Jw4">
+            <label data-page-node-id="0f8Nlvkc7PHwqqqB0V34CI">比赛日期</label>
+            <input type="date" id="matchDate" data-page-node-id="lGfo5vDF01TkZRwsiWVpH8">
+          </div>
+          <div data-page-node-id="D2Mx1IguQMnFgjH8lyoz87">
+            <label data-page-node-id="cPFyGnmPVd8iQlsenxAC4D">比赛轮次 / 备注</label>
+            <input type="text" id="matchRound" placeholder="如：第1轮" data-page-node-id="CuWLbee6aerog7IRDcmpu6">
+          </div>
+        </div>
+        <div class="row" data-page-node-id="QCDg9H0mwrN3svWF5S4crB">
+          <div data-page-node-id="dfz1foEsQgNDkAyEfNDbvu">
+            <label data-page-node-id="3Y1UGy2dM5ArixigCXXMkT">主队（选手）</label>
+            <select id="homeTeam" data-page-node-id="yMqCtnJxWN9tkWGDuU0BnY"></select>
+          </div>
+          <div data-page-node-id="grNlfS5dEOjVbfwuZHQKfV">
+            <label data-page-node-id="HkdCkoUYzW9UaIVBKIeaM9">客队（选手）</label>
+            <select id="awayTeam" data-page-node-id="aWGQT4FWzaxEvwBlpLP53J"></select>
+          </div>
+        </div>
+        <div class="row" data-page-node-id="Zv7Fnzzxn9ApOwTgl3W4Tn">
+          <div data-page-node-id="nXX6E4WmZ41kOCoz4y9xYY">
+            <label data-page-node-id="qoKF9Ouv81Li3dSVQZXr0Q">主队比分</label>
+            <input type="number" id="homeScore" min="0" value="0" data-page-node-id="M8NTrAMQF3xSlQmWTGSwQi">
+          </div>
+          <div data-page-node-id="bzS4fSzRo4T8zqxBPaFH2t">
+            <label data-page-node-id="uU9nYVLE0HhldHKhZuG2js">客队比分</label>
+            <input type="number" id="awayScore" min="0" value="0" data-page-node-id="cKfLo1FiVvg1GRJJ34rxAt">
+          </div>
+        </div>
+        <div data-page-node-id="ccz9UYFCOSCRGLD6mk941B">
+          <label data-page-node-id="H3dV3dB9K3AApl0q0W2eWk">主队进球队员（按进球顺序，每个进球一条）</label>
+          <div class="scorer-list" id="homeScorers" data-page-node-id="tAnU4ntHZedwmC5PZ1vr3v"></div>
+          <input type="text" id="homeScorerInput" placeholder="输入球员名，回车添加" data-page-node-id="k08Fa7bmC3JkWNPt5vHdzN">
+        </div>
+        <div data-page-node-id="clEHkUtOPzwOf5dR2ph3D5">
+          <label data-page-node-id="rDDYtAaFiGuuiNCCG0mrQ2">客队进球队员</label>
+          <div class="scorer-list" id="awayScorers" data-page-node-id="4GEbVKSAGnaDYVxHuRv4dM"></div>
+          <input type="text" id="awayScorerInput" placeholder="输入球员名，回车添加" data-page-node-id="LtcQTxTw8HKTOFzFlPaZJF">
+        </div>
+        <div class="actions" data-page-node-id="MkaCZYz6DeXxMTX0ZHrDF3">
+          <button type="submit" class="btn btn-primary" data-page-node-id="79NtEKVaef5DfZGWzprHJj">保存比赛</button>
+        </div>
+      </form>
+      <p class="note" data-page-node-id="BFBTmeeyW1bptB9oCHvXs5">提示：进球队员按顺序添加，数量应与对应比分一致（用于统计射手榜）。</p>
+    </div>
+  </section>
+
+  <!-- 选手管理 -->
+  <section id="tab-players" style="display:none" data-page-node-id="rWvwiTniHjmope5RoLCRlO">
+    <div class="card" data-page-node-id="2hAilYsUyVh0FoCtG9qD9h">
+      <h2 data-page-node-id="ZIFlyylBN4K9gbFdGlApPi">👥 选手管理</h2>
+      <form id="addPlayerForm" style="display:flex;gap:10px;margin-bottom:16px" data-page-node-id="ZAS1tdxCbUawtTAffQcciF">
+        <input type="text" id="playerNameInput" placeholder="输入新选手名（如：梅西 / 小张）" data-page-node-id="lquLXchuVO4SWrxitXb0fd">
+        <button type="submit" class="btn btn-primary" style="white-space:nowrap" data-page-node-id="eKMYpJZEOVUWC9aPOb1Pu3">添加选手</button>
+      </form>
+      <div id="playersList" data-page-node-id="U9UkLbzcn0JOerr9waMLcu"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  var API = ''; // 同源 API
+  var data = { players: [], matches: [] };
+
+  function api(path, opts){
+    return fetch(API + path, opts).then(function(r){
+      return r.json().then(function(j){
+        if(!r.ok) throw new Error(j.error || '请求失败');
+        return j;
+      });
+    });
+  }
+
+  function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+  function setSync(text, ok){
+    var b = document.getElementById('syncBadge');
+    b.textContent = text;
+    b.style.background = ok ? 'var(--green)' : 'var(--red)';
+  }
+
+  // ---- Tab 切换 ----
+  var navBtns = document.querySelectorAll('nav button');
+  navBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      navBtns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var tab = btn.getAttribute('data-tab');
+      ['standings','scorers','schedule','add','players'].forEach(function(t){
+        document.getElementById('tab-'+t).style.display = (t===tab) ? '' : 'none';
+      });
+    });
+  });
+
+  function switchTab(name){
+    navBtns.forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-tab')===name); });
+    ['standings','scorers','schedule','add','players'].forEach(function(t){
+      document.getElementById('tab-'+t).style.display = (t===name)?'':'none';
+    });
+  }
+
+  // ---- 选手下拉 ----
+  function fillPlayerSelect(sel, exclude){
+    var prev = sel.value;
+    sel.innerHTML = '';
+    data.players.forEach(function(p){
+      if(p === exclude) return;
+      var opt = document.createElement('option');
+      opt.value = p; opt.textContent = p;
+      sel.appendChild(opt);
+    });
+    if(sel.options.length > 0){
+      var found = false;
+      for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===prev){ found=true; break; } }
+      if(!found) sel.selectedIndex = 0;
+      if(sel.id==='awayTeam' && sel.options.length>1 && !found){ sel.selectedIndex = 1; }
+    }
+  }
+
+  // ---- 计算积分榜 ----
+  function computeStandings(){
+    var map = {};
+    data.players.forEach(function(p){
+      map[p] = {name:p, played:0, win:0, draw:0, loss:0, gf:0, ga:0, pts:0};
+    });
+    data.matches.forEach(function(m){
+      var h = map[m.home], a = map[m.away];
+      if(!h || !a) return;
+      h.played++; a.played++;
+      h.gf += m.homeScore; h.ga += m.awayScore;
+      a.gf += m.awayScore; a.ga += m.homeScore;
+      if(m.homeScore > m.awayScore){ h.win++; a.loss++; h.pts+=3; }
+      else if(m.homeScore < m.awayScore){ a.win++; h.loss++; a.pts+=3; }
+      else { h.draw++; a.draw++; h.pts++; a.pts++; }
+    });
+    var arr = Object.keys(map).map(function(k){return map[k];});
+    arr.sort(function(x,y){
+      if(y.pts !== x.pts) return y.pts - x.pts;
+      var xgd = x.gf - x.ga, ygd = y.gf - y.ga;
+      if(ygd !== xgd) return ygd - xgd;
+      if(y.gf !== x.gf) return y.gf - x.gf;
+      return x.name.localeCompare(y.name);
+    });
+    return arr;
+  }
+
+  // ---- 计算射手榜 ----
+  function computeScorers(){
+    var map = {};
+    data.matches.forEach(function(m){
+      (m.homeScorers||[]).forEach(function(s){ if(!s)return; map[s]=(map[s]||0)+1; });
+      (m.awayScorers||[]).forEach(function(s){ if(!s)return; map[s]=(map[s]||0)+1; });
+    });
+    var arr = Object.keys(map).map(function(k){return {name:k, goals:map[k]};});
+    arr.sort(function(a,b){ return b.goals - a.goals || a.name.localeCompare(b.name); });
+    return arr;
+  }
+
+  // ---- 渲染 ----
+  function renderStandings(){
+    var rows = computeStandings();
+    var tb = document.getElementById('standingsBody');
+    if(rows.length === 0){
+      tb.innerHTML = '<tr><td colspan="10" class="muted">暂无选手</td></tr>';
+      return;
+    }
+    tb.innerHTML = rows.map(function(r,i){
+      var rc = i===0?'rank1':(i===1?'rank2':(i===2?'rank3':''));
+      var gd = r.gf - r.ga;
+      return '<tr>'+
+        '<td class="'+rc+'">'+(i+1)+'</td>'+
+        '<td class="hl">'+esc(r.name)+'</td>'+
+        '<td>'+r.played+'</td>'+
+        '<td>'+r.win+'</td><td>'+r.draw+'</td><td>'+r.loss+'</td>'+
+        '<td>'+r.gf+'</td><td>'+r.ga+'</td>'+
+        '<td>'+(gd>0?'+':'')+gd+'</td>'+
+        '<td class="hl">'+r.pts+'</td>'+
+      '</tr>';
+    }).join('');
+  }
+
+  function renderScorers(){
+    var rows = computeScorers();
+    var tb = document.getElementById('scorersBody');
+    if(rows.length === 0){
+      tb.innerHTML = '<tr><td colspan="3" class="muted">暂无进球数据</td></tr>';
+      return;
+    }
+    tb.innerHTML = rows.map(function(r,i){
+      var rc = i===0?'rank1':(i===1?'rank2':(i===2?'rank3':''));
+      return '<tr><td class="'+rc+'">'+(i+1)+'</td>'+
+        '<td class="hl">'+esc(r.name)+'</td>'+
+        '<td>'+r.goals+'</td></tr>';
+    }).join('');
+  }
+
+  function renderSchedule(){
+    var list = document.getElementById('matchesList');
+    if(data.matches.length === 0){
+      list.innerHTML = '<div class="empty">还没有比赛，点击「添加比赛」开始记录吧 ⚽</div>';
+      return;
+    }
+    var ms = data.matches.slice().sort(function(a,b){
+      return (b.date||'').localeCompare(a.date||'') || (b.id - a.id);
+    });
+    list.innerHTML = ms.map(function(m){
+      var hs = (m.homeScorers||[]).filter(Boolean);
+      var as = (m.awayScorers||[]).filter(Boolean);
+      function goalsHtml(arr){
+        if(arr.length===0) return '';
+        return '<div class="goals">' + arr.map(function(g,i){
+          return '<b>'+(i+1)+"'. "+esc(g)+'</b>';
+        }).join('、') + '</div>';
+      }
+      return '<div class="match">'+
+        '<div class="match-head"><span>'+esc(m.round||'友谊赛')+'</span><span>'+esc(m.date||'')+'</span></div>'+
+        '<div class="match-body">'+
+          '<div class="team">'+esc(m.home)+goalsHtml(hs)+'</div>'+
+          '<div class="score '+((m.homeScore>m.awayScore)||(m.homeScore<m.awayScore)?'win':'')+'">'+m.homeScore+' : '+m.awayScore+'</div>'+
+          '<div class="team">'+esc(m.away)+goalsHtml(as)+'</div>'+
+        '</div>'+
+        '<div style="text-align:right"><button class="btn-danger" style="font-size:12px;padding:5px 12px" data-del="'+m.id+'">删除</button></div>'+
+      '</div>';
+    }).join('');
+
+    list.querySelectorAll('[data-del]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = parseInt(btn.getAttribute('data-del'),10);
+        if(confirm('确定删除这场比赛吗？（会同步影响所有人看到的数据）')){
+          api('/api', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({action:'deleteMatch', id:id})
+          }).then(refresh).catch(function(e){ alert(e.message); });
+        }
+      });
+    });
+  }
+
+  function renderPlayers(){
+    var box = document.getElementById('playersList');
+    if(data.players.length===0){
+      box.innerHTML = '<div class="empty">暂无选手</div>';
+      return;
+    }
+    box.innerHTML = data.players.map(function(p){
+      return '<div style="display:flex;justify-content:space-between;align-items:center;background:var(--panel2);border-radius:10px;padding:12px 14px;margin-bottom:8px">'+
+        '<span style="font-weight:600">'+esc(p)+'</span>'+
+        '<button class="btn-danger" style="font-size:12px;padding:5px 12px" data-rm="'+esc(p)+'">删除</button>'+
+      '</div>';
+    }).join('');
+    box.querySelectorAll('[data-rm]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var name = btn.getAttribute('data-rm');
+        if(confirm('确定删除选手「'+name+'」吗？相关比赛记录不受影响。')){
+          api('/api', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({action:'deletePlayer', name:name})
+          }).then(refresh).catch(function(e){ alert(e.message); });
+        }
+      });
+    });
+  }
+
+  function renderStat(){
+    var s = computeStandings();
+    var ms = data.matches.length;
+    var gs = computeScorers();
+    var totalGoals = data.matches.reduce(function(a,m){return a+m.homeScore+m.awayScore;},0);
+    var html =
+      '<div class="stat"><div class="num">'+data.players.length+'</div><div class="lab">参赛选手</div></div>'+
+      '<div class="stat"><div class="num">'+ms+'</div><div class="lab">已踢比赛</div></div>'+
+      '<div class="stat"><div class="num">'+totalGoals+'</div><div class="lab">总进球</div></div>'+
+      '<div class="stat"><div class="num">'+(gs.length>0?esc(gs[0].name):'—')+'</div><div class="lab">当前射手王</div></div>';
+    document.getElementById('statGrid').innerHTML = html;
+  }
+
+  function renderAll(){
+    renderStat();
+    renderStandings();
+    renderScorers();
+    renderSchedule();
+    renderPlayers();
+    fillPlayerSelect(document.getElementById('homeTeam'));
+    fillPlayerSelect(document.getElementById('awayTeam'), document.getElementById('homeTeam').value);
+  }
+
+  // ---- 数据加载 & 轮询 ----
+  function refresh(){
+    return api('/api').then(function(d){
+      data = d;
+      renderAll();
+      setSync('数据已同步', true);
+    }).catch(function(e){
+      setSync('同步失败', false);
+      console.error(e);
+    });
+  }
+
+  // ---- 添加选手 ----
+  document.getElementById('addPlayerForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var inp = document.getElementById('playerNameInput');
+    var name = inp.value.trim();
+    if(!name){ return; }
+    api('/api', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'addPlayer', name:name})
+    }).then(function(){ inp.value=''; return refresh(); })
+      .catch(function(e){ alert(e.message); });
+  });
+
+  // ---- 主客队联动 ----
+  document.getElementById('homeTeam').addEventListener('change', function(){
+    fillPlayerSelect(document.getElementById('awayTeam'), this.value);
+  });
+
+  // ---- 进球队员输入 ----
+  function bindScorerInput(inputId, listId, storeArr){
+    var inp = document.getElementById(inputId);
+    var list = document.getElementById(listId);
+    function rerender(){
+      list.innerHTML = '';
+      storeArr.forEach(function(name,i){
+        var chip = document.createElement('span');
+        chip.className = 'scorer-chip';
+        chip.innerHTML = esc(name) + ' <button class="del-goal" type="button" data-i="'+i+'">✕</button>';
+        chip.querySelector('button').addEventListener('click', function(){
+          storeArr.splice(i,1); rerender();
+        });
+        list.appendChild(chip);
+      });
+    }
+    inp.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        var v = inp.value.trim();
+        if(v){ storeArr.push(v); inp.value=''; rerender(); }
+      }
+    });
+    return rerender;
+  }
+
+  var homeScorersArr = [];
+  var awayScorersArr = [];
+  var rerenderHome = bindScorerInput('homeScorerInput','homeScorers',homeScorersArr);
+  var rerenderAway = bindScorerInput('awayScorerInput','awayScorers',awayScorersArr);
+
+  // ---- 提交比赛 ----
+  document.getElementById('addMatchForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var home = document.getElementById('homeTeam').value;
+    var away = document.getElementById('awayTeam').value;
+    var hs = parseInt(document.getElementById('homeScore').value,10)||0;
+    var as = parseInt(document.getElementById('awayScore').value,10)||0;
+    var date = document.getElementById('matchDate').value;
+    var round = document.getElementById('matchRound').value.trim();
+
+    if(!home || !away){ alert('请选择主队和客队'); return; }
+    if(home === away){ alert('主队和客队不能相同'); return; }
+
+    var payload = {
+      action: 'addMatch',
+      home: home, away: away,
+      homeScore: hs, awayScore: as,
+      date: date, round: round || '友谊赛',
+      homeScorers: homeScorersArr.slice(),
+      awayScorers: awayScorersArr.slice()
+    };
+
+    api('/api', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    }).then(function(){
+      homeScorersArr = []; awayScorersArr = [];
+      rerenderHome(); rerenderAway();
+      document.getElementById('homeScore').value = 0;
+      document.getElementById('awayScore').value = 0;
+      document.getElementById('matchRound').value = '';
+      switchTab('schedule');
+      return refresh();
+    }).catch(function(e){ alert(e.message); });
+  });
+
+  // ---- 初始化 ----
+  (function init(){
+    var today = new Date();
+    document.getElementById('matchDate').value = today.toISOString().slice(0,10);
+    refresh();
+    // 每 15 秒自动拉取一次，保持多设备同步
+    setInterval(refresh, 15000);
+  })();
+})();
+</script>
+</body>
+</html>
